@@ -1,5 +1,6 @@
 package com.project.exam.candidate;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,10 +14,12 @@ public class CandidateService {
 
     private final CandidateRepository candidateRepository;
 
+    @Transactional
     public Candidate getCandidateById(int id) {
         return this.candidateRepository.findById(id).orElseThrow(() -> new RuntimeException("Candidate not found with id: " + id));
     }
 
+    @Transactional
     public List<Candidate> getAllCandidates() {
         return this.candidateRepository.findAll();
     }

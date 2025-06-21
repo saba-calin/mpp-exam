@@ -10,6 +10,7 @@ import {
     Legend
 } from "chart.js";
 import axios from "axios";
+import {serverUrl} from "../../serverUrl.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -24,17 +25,23 @@ const Home = () => {
     ]);
 
     const loadCandidates = async () => {
-        const fetchCandidates = async () => {
-            const response = await axios.get("http://localhost:8080/api/v1/candidate/get-all");
-            console.log(response.data);
-            setDummyData(response.data);
-        };
-        fetchCandidates();
+        try {
+            const response = await axios.get(`http://16.171.253.28:8080/api/v1/candidate/get-all`);
+            if (Array.isArray(response.data)) {
+                setDummyData(response.data);
+            } else {
+                setDummyData([]);
+            }
+        } catch (error) {
+            console.error(error);
+            setDummyData([]);
+        }
     }
 
     useEffect(() => {
+        console.log("here");
         const fetchCandidates = async () => {
-            const response = await axios.get("http://localhost:8080/api/v1/candidate/get-all");
+            const response = await axios.get(`http://16.171.253.28:8080/api/v1/candidate/get-all`);
             console.log(response.data);
             setDummyData(response.data);
         };
@@ -62,7 +69,7 @@ const Home = () => {
         formDataToSend.append("party", candidate.party);
         formDataToSend.append("photo", candidate.photo);
 
-        await axios.post("http://localhost:8080/api/v1/candidate", formDataToSend);
+        await axios.post("http://16.171.253.28:8080/api/v1/candidate", formDataToSend);
         loadCandidates();
     };
 
@@ -102,10 +109,10 @@ const Home = () => {
 
     const toggleGeneration = async () => {
         if (!isGenerating) {
-            await axios.post("http://localhost:8080/api/v1/generator/start");
+            await axios.post(`http://16.171.253.28:8080/api/v1/generator/start`);
             setIsGenerating(true);
         } else {
-            await axios.post("http://localhost:8080/api/v1/generator/stop");
+            await axios.post(`http://16.171.253.28:8080/api/v1/generator/stop`);
             setIsGenerating(false);
         }
     };
@@ -123,7 +130,7 @@ const Home = () => {
 
 
     const handleDelete = async (id) => {
-        await axios.delete(`http://localhost:8080/api/v1/candidate?id=${id}`);
+        await axios.delete(`http://16.171.253.28:8080/api/v1/candidate?id=${id}`);
         loadCandidates();
     };
 

@@ -35,4 +35,9 @@ public class CandidateController {
                              @RequestParam("photo") MultipartFile photo) {
         this.candidateService.addCandidate(firstName, lastName, party, photo);
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return "sup";
+    }
 }
