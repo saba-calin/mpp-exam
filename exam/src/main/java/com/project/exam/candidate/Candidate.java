@@ -25,6 +25,8 @@ public class Candidate {
 
     private boolean isElected;
 
+    private boolean isFavourable;
+
     @Lob
     private byte[] photo;
 }

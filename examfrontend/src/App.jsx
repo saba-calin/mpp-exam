@@ -6,6 +6,7 @@ import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import News from "./pages/News.jsx";
 import Election from "./pages/Election.jsx";
+import SecondRound from "./pages/SecondRound.jsx";
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/news" element={<News />} />
                     <Route path="/election" element={<Election />} />
+                    <Route path="/second-round" element={<SecondRound />} />
               </Route>
           </Routes>
       </BrowserRouter>

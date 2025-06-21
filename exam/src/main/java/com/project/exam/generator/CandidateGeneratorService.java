@@ -45,6 +45,8 @@ public class CandidateGeneratorService {
         String[] firstNames = {"Liam", "Olivia", "Noah", "Emma"};
         String[] lastNames = {"Brown", "Jones", "Garcia", "Miller"};
         String[] parties = {"Red", "Blue", "Green", "Yellow"};
+        boolean isFavourable = new Random().nextBoolean();
+
 
         return new Candidate(
                 null,
@@ -53,6 +55,7 @@ public class CandidateGeneratorService {
                 parties[new Random().nextInt(parties.length)],
                 0,
                 false,
+                isFavourable,
                 null // handle photo if needed
         );
     }
