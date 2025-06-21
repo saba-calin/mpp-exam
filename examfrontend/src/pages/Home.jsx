@@ -1,16 +1,76 @@
-import {Fragment, useRef, useState} from "react";
+import {Fragment, useEffect, useRef, useState} from "react";
 import HomeNavbar from "../layout/HomeNavbar.jsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+import { Pie } from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    ArcElement,
+    Tooltip,
+    Legend
+} from "chart.js";
+import axios from "axios";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Home = () => {
     const navigate = useNavigate();
 
     const [dummyData, setDummyData] = useState([
-        { id: 1, firstName: "John", lastName: "Doe" },
-        { id: 2, firstName: "Jane", lastName: "Smith" },
-        { id: 3, firstName: "Alice", lastName: "Johnson" },
-        { id: 4, firstName: "Bob", lastName: "Williams" }
+        { id: 1, firstName: "John", lastName: "Doe", party: "Red" },
+        { id: 2, firstName: "Jane", lastName: "Smith", party: "Blue" },
+        { id: 3, firstName: "Alice", lastName: "Johnson", party: "Green" },
+        { id: 4, firstName: "Bob", lastName: "Williams", party: "Red" }
     ]);
+
+    useEffect(() => {
+        const fetchCandidates = async () => {
+            const response = await axios.get("http://localhost:8080/api/v1/candidate/get-all");
+            console.log(response.data);
+            setDummyData(response.data);
+        };
+        fetchCandidates();
+    }, []);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const data = new FormData(e.target);
+        const formattedData = Object.fromEntries(data.entries());
+
+        // Build the candidate object (for readability/logging)
+        const candidate = {
+            firstName: formattedData.firstName,
+            lastName: formattedData.lastName,
+            party: formattedData.party,
+            photo: data.get("photo") // this gives you the actual File object
+        };
+
+        // Create a new FormData to send
+        const formDataToSend = new FormData();
+        formDataToSend.append("firstName", candidate.firstName);
+        formDataToSend.append("lastName", candidate.lastName);
+        formDataToSend.append("party", candidate.party);
+        formDataToSend.append("photo", candidate.photo);
+
+        axios.post("http://localhost:8080/api/v1/candidate", formDataToSend);
+    };
+
+
+    const handleEdit = (e) => {
+        e.preventDefault();
+
+        const id = parseInt(e.target.id.value);
+        const firstName = e.target.firstName.value;
+        const lastName = e.target.lastName.value;
+        const party = e.target.party.value;
+
+        setDummyData((prevData) =>
+            prevData.map((user) =>
+                user.id === id ? { ...user, firstName: firstName, lastName: lastName, party: party } : user
+            )
+        );
+    }
 
     const [isGenerating, setIsGenerating] = useState(false);
     const intervalRef = useRef(null);
@@ -21,7 +81,7 @@ const Home = () => {
         const parties = ["Red", "Blue", "Green", "Yellow"];
 
         const newCandidate = {
-            id: Date.now(), // unique ID based on timestamp
+            id: Date.now(),
             firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
             lastName: lastNames[Math.floor(Math.random() * lastNames.length)],
             party: parties[Math.floor(Math.random() * parties.length)]
@@ -41,9 +101,28 @@ const Home = () => {
     };
 
     const handleDelete = (indexToRemove) => {
-        setDummyData((prevData) =>
+        setDummyData(prevData =>
             prevData.filter((_, index) => index !== indexToRemove)
         );
+    };
+
+    const getPartyChartData = () => {
+        const counts = dummyData.reduce((acc, curr) => {
+            acc[curr.party] = (acc[curr.party] || 0) + 1;
+            return acc;
+        }, {});
+
+        return {
+            labels: Object.keys(counts),
+            datasets: [
+                {
+                    label: "Party Distribution",
+                    data: Object.values(counts),
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"],
+                    borderWidth: 1,
+                }
+            ]
+        };
     };
 
     return (
@@ -52,7 +131,10 @@ const Home = () => {
 
             <div className="container">
                 <div className="d-flex justify-content-end py-2">
-                    <button className={`btn ${isGenerating ? "btn-danger" : "btn-success"}`} onClick={toggleGeneration}>
+                    <button
+                        className={`btn ${isGenerating ? "btn-danger" : "btn-success"}`}
+                        onClick={toggleGeneration}
+                    >
                         {isGenerating ? "Stop Generator" : "Start Generator"}
                     </button>
                 </div>
@@ -91,23 +173,29 @@ const Home = () => {
                         ))}
                         </tbody>
                     </table>
+
+                    <h4 className="mt-5">Party Distribution</h4>
+                    <div style={{ maxWidth: "400px", margin: "auto" }}>
+                        <Pie data={getPartyChartData()} />
+                    </div>
                 </div>
             </div>
 
+            <form role="form" className="mb-3 text-center" onSubmit={handleSubmit}>
+                <label htmlFor="firstName" className="form-label">First Name</label>
+                <input type="text" id="firstName" name="firstName" className="form-control" placeholder="First Name" style={{marginBottom: "10px"}} />
 
+                <label htmlFor="lastName" className="form-label">Last Name</label>
+                <input type="text" id="lastName" name="lastName" className="form-control" placeholder="Last Name" style={{marginBottom: "10px"}} />
 
-            {/*<form role="form" className="mb-3 text-center" onSubmit={handleSubmit}>*/}
-            {/*    <label htmlFor="firstName" className="form-label">First Name</label>*/}
-            {/*    <input type="text" id="firstName" name="firstName" className="form-control" placeholder="First Name" style={{marginBottom: "10px"}} />*/}
+                <label htmlFor="party" className="form-label">Party</label>
+                <input type="text" id="party" name="party" className="form-control" placeholder="Party" style={{marginBottom: "10px"}} />
 
-            {/*    <label htmlFor="lastName" className="form-label">Last Name</label>*/}
-            {/*    <input type="text" id="lastName" name="lastName" className="form-control" placeholder="Last Name" style={{marginBottom: "10px"}} />*/}
+                <label htmlFor="photo" className="form-label">Photo</label>
+                <input type="file" id="photo" name="photo" className="form-control" style={{marginBottom: "50px"}} />
 
-            {/*    <label htmlFor="party" className="form-label">Party</label>*/}
-            {/*    <input type="text" id="party" name="party" className="form-control" placeholder="Party" style={{marginBottom: "50px"}} />*/}
-
-            {/*    <button type="submit" className="btn btn-outline-primary">Add</button>*/}
-            {/*</form>*/}
+                <button type="submit" className="btn btn-outline-primary">Add</button>
+            </form>
 
             {/*<form role="form" className="mb-3 text-center" onSubmit={handleEdit}>*/}
             {/*    <label htmlFor="id" className="form-label">First Name</label>*/}
@@ -126,6 +214,6 @@ const Home = () => {
             {/*</form>*/}
         </Fragment>
     );
-}
+};
 
 export default Home;
