@@ -23,6 +23,15 @@ const Home = () => {
         { id: 4, firstName: "Bob", lastName: "Williams", party: "Red" }
     ]);
 
+    const loadCandidates = async () => {
+        const fetchCandidates = async () => {
+            const response = await axios.get("http://localhost:8080/api/v1/candidate/get-all");
+            console.log(response.data);
+            setDummyData(response.data);
+        };
+        fetchCandidates();
+    }
+
     useEffect(() => {
         const fetchCandidates = async () => {
             const response = await axios.get("http://localhost:8080/api/v1/candidate/get-all");
@@ -32,7 +41,7 @@ const Home = () => {
         fetchCandidates();
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const data = new FormData(e.target);
@@ -53,7 +62,8 @@ const Home = () => {
         formDataToSend.append("party", candidate.party);
         formDataToSend.append("photo", candidate.photo);
 
-        axios.post("http://localhost:8080/api/v1/candidate", formDataToSend);
+        await axios.post("http://localhost:8080/api/v1/candidate", formDataToSend);
+        loadCandidates();
     };
 
 
@@ -100,10 +110,9 @@ const Home = () => {
         }
     };
 
-    const handleDelete = (indexToRemove) => {
-        setDummyData(prevData =>
-            prevData.filter((_, index) => index !== indexToRemove)
-        );
+    const handleDelete = async (id) => {
+        await axios.delete(`http://localhost:8080/api/v1/candidate?id=${id}`);
+        loadCandidates();
     };
 
     const getPartyChartData = () => {
@@ -152,7 +161,7 @@ const Home = () => {
                         <tbody>
                         {dummyData.map((user, index) => (
                             <tr key={user.id}>
-                                <th scope="row">{index + 1}</th>
+                                <th scope="row">{user.id}</th>
                                 <td>{user.firstName}</td>
                                 <td>{user.lastName}</td>
                                 <td className="text-center">
@@ -164,7 +173,7 @@ const Home = () => {
                                     </button>
                                     <button
                                         className="btn btn-danger btn-sm mx-1"
-                                        onClick={() => handleDelete(index)}
+                                        onClick={() => handleDelete(user.id)}
                                     >
                                         Delete
                                     </button>
