@@ -51,6 +51,8 @@ public class CandidateGeneratorService {
                 firstNames[new Random().nextInt(firstNames.length)],
                 lastNames[new Random().nextInt(lastNames.length)],
                 parties[new Random().nextInt(parties.length)],
+                0,
+                false,
                 null // handle photo if needed
         );
     }

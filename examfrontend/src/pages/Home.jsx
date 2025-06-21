@@ -153,6 +153,33 @@ const Home = () => {
         };
     };
 
+    const handleVote = (candidateId) => {
+        const userId = localStorage.getItem("id");
+
+        if (!userId) {
+            alert("You must be logged in to vote.");
+            return;
+        }
+
+        // Get votedUsers from localStorage (stored as an object of userId -> candidateId)
+        const votedUsers = JSON.parse(localStorage.getItem("votedUsers")) || {};
+
+        if (!votedUsers[userId]) {
+            if (!candidateId) {
+                alert("Invalid candidate.");
+                return;
+            }
+
+            votedUsers[userId] = candidateId;
+            localStorage.setItem("votedUsers", JSON.stringify(votedUsers));
+
+            alert("You have successfully voted for candidate with ID: " + candidateId);
+        } else {
+            alert("You have already voted for candidate with ID: " + votedUsers[userId]);
+        }
+    };
+
+
     return (
         <Fragment>
             <HomeNavbar />
@@ -195,6 +222,12 @@ const Home = () => {
                                         onClick={() => handleDelete(user.id)}
                                     >
                                         Delete
+                                    </button>
+                                    <button
+                                        className="btn btn-warning btn-sm mx-1"
+                                        onClick={() => handleVote(user.id)}
+                                    >
+                                        Vote
                                     </button>
                                 </td>
                             </tr>

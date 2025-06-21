@@ -21,6 +21,10 @@ public class Candidate {
 
     private String party;
 
+    private int votes;
+
+    private boolean isElected;
+
     @Lob
     private byte[] photo;
 }
