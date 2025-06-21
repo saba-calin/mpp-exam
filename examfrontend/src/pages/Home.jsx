@@ -100,15 +100,27 @@ const Home = () => {
         setDummyData(prevData => [...prevData, newCandidate]);
     };
 
-    const toggleGeneration = () => {
+    const toggleGeneration = async () => {
         if (!isGenerating) {
-            intervalRef.current = setInterval(generateRandomCandidate, 1000);
+            await axios.post("http://localhost:8080/api/v1/generator/start");
             setIsGenerating(true);
         } else {
-            clearInterval(intervalRef.current);
+            await axios.post("http://localhost:8080/api/v1/generator/stop");
             setIsGenerating(false);
         }
     };
+
+    useEffect(() => {
+        let interval;
+        if (isGenerating) {
+            interval = setInterval(loadCandidates, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isGenerating]);
+
+
+
+
 
     const handleDelete = async (id) => {
         await axios.delete(`http://localhost:8080/api/v1/candidate?id=${id}`);
