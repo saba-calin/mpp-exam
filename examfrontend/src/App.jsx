@@ -1,6 +1,7 @@
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import Home from "./pages/Home.jsx";
+import ViewCandidate from "./pages/ViewCandidate.jsx";
 
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
           <Routes>
               <Route>
                     <Route path="/" element={<Home />} />
+                    <Route path="/candidate/:id" element={<ViewCandidate />} />
               </Route>
           </Routes>
       </BrowserRouter>
